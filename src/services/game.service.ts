@@ -84,7 +84,7 @@ export class GameService {
 
     while (continueGame) {
       for (let player of orderedPlayers) {
-        const { properties } = gameBoard;
+        let { properties } = gameBoard;
 
         if (!player.busted) {
           const moveForward = faker.datatype.number({
@@ -112,6 +112,10 @@ export class GameService {
               properties[player.position],
               player,
             );
+          }
+
+          if (player.busted) {
+            properties = this.removeProperties(player.behavior, properties);
           }
         } else {
           ++round;
@@ -228,5 +232,18 @@ export class GameService {
     }
 
     return player;
+  }
+
+  private removeProperties(
+    playerName: string,
+    properties: Property[],
+  ): Property[] {
+    properties.forEach((property) => {
+      if (property.owner?.behavior === playerName) {
+        property.owner = null;
+      }
+    });
+
+    return properties;
   }
 }
