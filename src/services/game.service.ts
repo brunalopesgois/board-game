@@ -226,7 +226,7 @@ export class GameService {
     } else {
       player.balance -= property.rent;
       this.logger.debug(
-        `Player ${player.behavior} have to pay the rent for ${property.owner} property. Balance left`,
+        `Player ${player.behavior} have to pay the rent for ${property.owner?.behavior} property. Balance left`,
         player.balance,
       );
     }
