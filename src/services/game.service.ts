@@ -75,7 +75,7 @@ export class GameService {
   }
 
   private play(gameBoard: GameBoard, players: Player[]): ResultInterface {
-    const orderedPlayers = players.sort(() => 0.5 - Math.random());
+    let orderedPlayers = players.sort(() => 0.5 - Math.random());
     let round = 0;
     const busteds: string[] = [];
     let continueGame = true;
@@ -83,7 +83,7 @@ export class GameService {
     this.logger.debug('Players order:', orderedPlayers);
 
     while (continueGame) {
-      for (let player of orderedPlayers) {
+      for (const player of orderedPlayers) {
         let { properties } = gameBoard;
 
         if (!player.busted) {
@@ -105,7 +105,12 @@ export class GameService {
           );
 
           if (properties[player.position].owner !== null) {
-            player = this.payRent(player, properties[player.position], busteds);
+            orderedPlayers = this.payRent(
+              player,
+              orderedPlayers,
+              properties[player.position],
+              busteds,
+            );
           }
           if (properties[player.position].owner === null) {
             properties[player.position].owner = this.willBuyProperty(
@@ -211,27 +216,36 @@ export class GameService {
   }
 
   private payRent(
-    player: Player,
+    currentPlayer: Player,
+    players: Player[],
     property: Property,
     busteds: string[],
-  ): Player {
-    if (player.balance - property.rent < 0) {
-      player.busted = true;
-      busteds.push(player.behavior);
+  ): Player[] {
+    if (currentPlayer.balance - property.rent < 0) {
+      const index = players.indexOf(currentPlayer);
+      players[index].busted = true;
+      busteds.push(currentPlayer.behavior);
       this.logger.debug(
-        `Player ${player.behavior} can't pay rent. Rent value: ${property.rent}. Player balance: ${player.balance} Current status: busted`,
-        player.busted,
+        `Player ${currentPlayer.behavior} can't pay rent. Rent value: ${property.rent}. Player balance: ${currentPlayer.balance} Current status: busted`,
+        currentPlayer.busted,
       );
-      player.balance = 0;
+      players[index].balance = 0;
     } else {
-      player.balance -= property.rent;
+      let index = players.indexOf(currentPlayer);
+      players[index].balance -= property.rent;
       this.logger.debug(
-        `Player ${player.behavior} have to pay the rent for ${property.owner?.behavior} property. Balance left`,
-        player.balance,
+        `Player ${currentPlayer.behavior} have to pay the rent for ${property.owner?.behavior} property. Balance left`,
+        currentPlayer.balance,
+      );
+      index = players.indexOf(property.owner);
+      players[index].balance += property.rent;
+      this.logger.debug(
+        `Owner ${players[index].behavior} balance after receive rent:`,
+        players[index].balance,
       );
     }
 
-    return player;
+    return players;
   }
 
   private removeProperties(
