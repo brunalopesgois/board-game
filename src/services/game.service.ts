@@ -221,6 +221,11 @@ export class GameService {
     property: Property,
     busteds: string[],
   ): Player[] {
+    const index = players.indexOf(property.owner);
+    if (currentPlayer.behavior == players[index].behavior) {
+      return players;
+    }
+
     if (currentPlayer.balance - property.rent < 0) {
       const index = players.indexOf(currentPlayer);
       players[index].busted = true;
