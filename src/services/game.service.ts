@@ -99,7 +99,10 @@ export class GameService {
               ? player.position + moveForward
               : 0 + moveForward;
 
-          this.logger.debug(`Player ${player.behavior} moved to position: `, player.position);
+          this.logger.debug(
+            `Player ${player.behavior} moved to position: `,
+            player.position,
+          );
 
           if (properties[player.position].owner !== null) {
             player = this.payRent(player, properties[player.position], busteds);
@@ -158,14 +161,20 @@ export class GameService {
 
     if (player.behavior == BehaviorType.IMPULSIVE) {
       player.balance -= property.salePrice;
-      this.logger.debug(`Player ${player.behavior} buyed property with value: ${property.salePrice}. Balance left:`, player.balance);
+      this.logger.debug(
+        `Player ${player.behavior} buyed property with value: ${property.salePrice}. Balance left:`,
+        player.balance,
+      );
       return player;
     }
 
     if (player.behavior == BehaviorType.DEMANDING) {
       if (property.rent > 50) {
         player.balance -= property.salePrice;
-        this.logger.debug(`Player ${player.behavior} buyed property with value: ${property.salePrice}. Balance left:`, player.balance);
+        this.logger.debug(
+          `Player ${player.behavior} buyed property with value: ${property.salePrice}. Balance left:`,
+          player.balance,
+        );
         return player;
       }
       return null;
@@ -175,7 +184,10 @@ export class GameService {
       const finalBudget = player.balance - property.salePrice;
       if (finalBudget >= 80) {
         player.balance -= property.salePrice;
-        this.logger.debug(`Player ${player.behavior} buyed property with value: ${property.salePrice}. Balance left:`, player.balance);
+        this.logger.debug(
+          `Player ${player.behavior} buyed property with value: ${property.salePrice}. Balance left:`,
+          player.balance,
+        );
         return player;
       }
       return null;
@@ -184,14 +196,21 @@ export class GameService {
     if (player.behavior == BehaviorType.RANDOM) {
       if (Math.random() < 0.5) {
         player.balance -= property.salePrice;
-        this.logger.debug(`Player ${player.behavior} buyed property with value: ${property.salePrice}. Balance left:`, player.balance);
+        this.logger.debug(
+          `Player ${player.behavior} buyed property with value: ${property.salePrice}. Balance left:`,
+          player.balance,
+        );
         return player;
       }
       return null;
     }
   }
 
-  private payRent(player: Player, property: Property, busteds: string[]): Player {
+  private payRent(
+    player: Player,
+    property: Property,
+    busteds: string[],
+  ): Player {
     if (player.balance - property.rent < 0) {
       player.busted = true;
       busteds.push(player.behavior);
@@ -199,6 +218,7 @@ export class GameService {
         `Player ${player.behavior} can't pay rent. Rent value: ${property.rent}. Player balance: ${player.balance} Current status: busted`,
         player.busted,
       );
+      player.balance = 0;
     } else {
       player.balance -= property.rent;
       this.logger.debug(
